@@ -32,3 +32,12 @@ services:
     restart: on-failure
     volumes:
       - ./blog:/blog:ro
+
+  blog_bog:
+    image: blog_bob
+    build: ./blog_bob
+    init: true
+    restart: on-failure
+    volumes:
+      - ./blog:/blog:rw
+      - ./hugobde.dev/blog_source:/blog_articles:ro
