@@ -7,6 +7,7 @@ services:
     depends_on:
       - msgme
       - AAAAAAAA
+      - blog_bob
     ports:
       - "443:443"
     restart: on-failure
@@ -33,7 +34,7 @@ services:
     volumes:
       - ./blog:/blog:ro
 
-  blog_bog:
+  blog_bob:
     image: blog_bob
     build: ./blog_bob
     init: true
