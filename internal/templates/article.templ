@@ -1,0 +1,15 @@
+package templates
+
+import (
+	"fmt"
+	"hugobde.dev/internal/article"
+)
+
+templ ArticleComponent(index int, article *article.BlogArticle) {
+	<a href={ templ.URL(fmt.Sprintf("/blog/%d", index)) }>
+		<div class="card">
+			<h4 class="link-underline">{ article.Title }</h4>
+			<p class="date">{ article.LastModifiedTime.Format("2006-01-02") }</p>
+		</div>
+	</a>
+}
