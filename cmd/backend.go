@@ -13,6 +13,7 @@ import (
 	"hugobde.dev/internal/templates"
 
 	"github.com/fsnotify/fsnotify"
+	"github.com/joho/godotenv"
 )
 
 // static file server
@@ -24,9 +25,26 @@ import (
 var BLOG_ARTICLES []*article.BlogArticle = make([]*article.BlogArticle, 0)
 
 func main() {
+	err := godotenv.Load()
+	if err != nil {
+		log.Println("Failed to load .env file, hope you have environments variables already set :)")
+	}
+
 	port := os.Getenv("PORT")
+	if port == "" {
+		log.Fatal("PORT not set")
+	}
+
 	serverCert := os.Getenv("SERVER_CERT")
+	if serverCert == "" {
+		log.Fatal("SERVER_CERT not set")
+	}
+
 	serverKey := os.Getenv("SERVER_KEY")
+	if serverKey == "" {
+		log.Fatal("SERVER_KEY not set")
+
+	}
 
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
