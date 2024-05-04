@@ -27,7 +27,7 @@ func BlogTemplate(articles []*article.BlogArticle) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<html><head><link rel=\"stylesheet\" href=\"static/index.css\"><link rel=\"stylesheet\" href=\"static/blog.css\"><link rel=\"preconnect\" href=\"https://fonts.googleapis.com\"><link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin><link href=\"https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,400;0,500;1,400;1,500&amp;display=swap\" rel=\"stylesheet\"></head><body><nav><a href=\"/\"><span class=\"link-underline\">hugobde.dev </span></a> <a href=\"/blog\"><span class=\"link-underline\">blog</span></a></nav><main><div id=\"articles-list\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<html><head><link rel=\"stylesheet\" href=\"static/stylesheets/index.css\"><link rel=\"stylesheet\" href=\"static/blog.css\"><link rel=\"preconnect\" href=\"https://fonts.googleapis.com\"><link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin><link href=\"https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,400;0,500;1,400;1,500&amp;display=swap\" rel=\"stylesheet\"></head><body><nav><a href=\"/\"><span class=\"link-underline\">hugobde.dev </span></a> <a href=\"/blog\"><span class=\"link-underline\">blog</span></a></nav><main><div id=\"articles-list\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

@@ -121,7 +121,6 @@ footer {
     border-top: 1px solid var(--fg);
     margin-top: 1em;
     padding: 0.5em;
-    width: 100%;
 }
 
 footer>* {

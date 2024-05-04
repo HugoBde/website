@@ -35,8 +35,6 @@ func ReadArticleFromFile(title string, filename string, lastModifiedTime time.Ti
 		return nil, err
 	}
 
-	// turn title from "my_title_name" to "my title name"
-
 	article := BlogArticle{
 		Title:            strings.ReplaceAll(title, "_", " "),
 		HTML:             html,
