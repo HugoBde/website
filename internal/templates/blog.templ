@@ -15,8 +15,14 @@ templ BlogTemplate(articles []*article.BlogArticle) {
 		</head>
 		<body>
 			<nav>
-				<a href="/"><span class="link-underline">hugobde.dev </span> </a>
-				<a href="/blog"><span class="link-underline">blog</span></a>
+				<div>
+					<a href="/"><span class="link-underline">hugobde.dev </span> </a>
+					<a href="/blog"><span class="link-underline">blog</span></a>
+				</div>
+				<div>
+					<a href="https://twitter.com/BouderliqueHugo" target="_blank"><span class="link-underline">x</span></a>
+					<a href="https://www.github.com/HugoBde" target="_blank"><span class="link-underline">github</span></a>
+				</div>
 			</nav>
 			<main>
 				<div id="articles-list">
@@ -25,11 +31,6 @@ templ BlogTemplate(articles []*article.BlogArticle) {
 					}
 				</div>
 			</main>
-			<footer>
-				<a href="https://www.github.com/HugoBde" target="_blank"><span class="link-underline">github</span></a>
-				<a href="https://www.linkedin.com/in/bouderliqueh/" target="_blank"><span class="link-underline">linkedin</span></a>
-				<a href="https://twitter.com/BouderliqueHugo" target="_blank"><span class="link-underline">x</span></a>
-			</footer>
 		</body>
 	</html>
 }

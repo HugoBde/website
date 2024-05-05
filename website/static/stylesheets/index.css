@@ -14,35 +14,34 @@ html {
 
 body {
     margin: 0;
-    height: 100%;
     display: flex;
     flex-direction: column;
+    padding-bottom: 1em;
 }
 
 nav {
     display: flex;
     flex-direction: row;
+    justify-content: space-between;
     border-bottom: 1px solid var(--fg);
     margin-bottom: 1em;
-    padding: 0.5em;
+    padding: 0.5em 0;
     background: var(--bg);
 }
 
-nav>* {
-    padding: 0em 0.5em;
-    border-left: 1px solid var(--fg);
-}
-
-nav>*:first-child {
-    border-left: none;
-}
-
 nav>div {
-    width: 80%;
-
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    flex-direction: row;
+    flex-grow: 0;
+}
+
+nav>div>* {
+    border-left: 1px solid var(--fg);
+    padding: 0em 0.5em;
+}
+
+nav>div>*:first-child {
+    border-left: none;
 }
 
 a {
