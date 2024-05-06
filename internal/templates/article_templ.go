@@ -13,6 +13,7 @@ import "bytes"
 import (
 	"fmt"
 	"hugobde.dev/internal/article"
+	"time"
 )
 
 func ArticleComponent(index int, article *article.BlogArticle) templ.Component {
@@ -44,7 +45,7 @@ func ArticleComponent(index int, article *article.BlogArticle) templ.Component {
 		var templ_7745c5c3_Var3 string
 		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(article.Title)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/article.templ`, Line: 11, Col: 45}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/article.templ`, Line: 12, Col: 45}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 		if templ_7745c5c3_Err != nil {
@@ -55,9 +56,9 @@ func ArticleComponent(index int, article *article.BlogArticle) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var4 string
-		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(article.LastModifiedTime.Format("2006-01-02"))
+		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(time.Time(article.PubTime).Format("2006-01-02"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/article.templ`, Line: 12, Col: 66}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/article.templ`, Line: 13, Col: 68}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 		if templ_7745c5c3_Err != nil {

@@ -3,8 +3,8 @@ html {
 }
 
 h3 {
-    margin-top: 1em !important;
-    margin-bottom: 1em !important;
+    /* margin-top: 1em !important; */
+    /* margin-bottom: 1em !important; */
 }
 
 #articles-list {
@@ -26,6 +26,8 @@ h3 {
 .article-header {
     display: flex;
     align-items: center;
+    padding-bottom: 0.5em;
+    border-bottom: 1px solid var(--fg);
 }
 
 .article-header>* {

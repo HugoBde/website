@@ -1,6 +1,9 @@
 package templates 
 
-import "hugobde.dev/internal/article"
+import (
+	"time"
+	"hugobde.dev/internal/article"
+)
 
 templ ArticlePage(article *article.BlogArticle) {
 	<html>
@@ -26,7 +29,7 @@ templ ArticlePage(article *article.BlogArticle) {
 				<div class="card">
 					<div class="article-header">
 						<h3>{ article.Title }</h3>
-						<p class="date">{ article.LastModifiedTime.Format("2006-01-02") }</p>
+						<p class="date">{ time.Time(article.PubTime).Format("2006-01-02") }</p>
 					</div>
 					@templ.Raw(string(article.HTML))
 				</div>

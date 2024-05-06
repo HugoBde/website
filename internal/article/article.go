@@ -1,6 +1,8 @@
 package article
 
 import (
+	"bytes"
+	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -11,22 +13,22 @@ import (
 
 	"github.com/fsnotify/fsnotify"
 	"github.com/gomarkdown/markdown"
+	"gopkg.in/yaml.v3"
 )
 
 type BlogArticle struct {
-	LastModifiedTime time.Time
-	HTML             []byte
-	Title            string
+	HTML       []byte
+	sourceFile string
+	FrontMatter
 }
 
 type ArticleBuilderWatcher struct {
 	Articles  []*BlogArticle
 	watcher   *fsnotify.Watcher
 	sourceDir string
-	outputDir string
 }
 
-func NewArticleBuilderWatcher(sourceDir string, outputDir string) (*ArticleBuilderWatcher, error) {
+func NewArticleBuilderWatcher(sourceDir string) (*ArticleBuilderWatcher, error) {
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
 		return nil, err
@@ -41,7 +43,6 @@ func NewArticleBuilderWatcher(sourceDir string, outputDir string) (*ArticleBuild
 		Articles:  make([]*BlogArticle, 0),
 		watcher:   watcher,
 		sourceDir: sourceDir,
-		outputDir: outputDir,
 	}, nil
 }
 
@@ -58,83 +59,25 @@ func (b *ArticleBuilderWatcher) resume() {
 		log.Fatal(err)
 	}
 
-	// Get entries in compiled articles dir
-	compiledDirEntries, err := os.ReadDir(b.outputDir)
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	// Resolve each blog source with its compiled article
 	for _, sourceDirEntry := range sourceDirEntries {
 		if !strings.HasSuffix(sourceDirEntry.Name(), ".md") {
 			continue
 		}
 
-		// Get article name, and ignore entries without .md extension
-		title := strings.TrimSuffix(sourceDirEntry.Name(), ".md")
-
-		// Find a matching compiled article
-		articleDirEntry := findDirEntry(title, compiledDirEntries)
-
-		// If no match found, build the article
-		if articleDirEntry == nil {
-			article, err := b.buildArticle(sourceDirEntry.Name())
-			if err != nil {
-				log.Println(err)
-				continue
-			}
-
-			os.WriteFile(path.Join(b.outputDir, title+".html"), article.HTML, 0644)
-			b.Articles = append(b.Articles, article)
-			continue
-		}
-
-		// If we find a match, get both files info to compare last modified time
-		articleFileInfo, err := articleDirEntry.Info()
-		sourceFileInfo, err := sourceDirEntry.Info()
+		article, err := b.buildArticle(path.Join(b.sourceDir, sourceDirEntry.Name()))
 		if err != nil {
-			log.Fatal(err)
-		}
-
-		// If the compiled file info is older than the source, rebuild
-		if sourceFileInfo.ModTime().Sub(articleFileInfo.ModTime()) > 0 {
-			article, err := b.buildArticle(sourceDirEntry.Name())
-			if err != nil {
-				log.Println(err)
-				continue
-			}
-			os.WriteFile(path.Join(b.outputDir, title+".html"), article.HTML, 0644)
-			b.Articles = append(b.Articles, article)
+			log.Println(err)
 			continue
-		}
-
-		article, err := b.loadArticle(articleFileInfo.Name(), sourceFileInfo.ModTime())
-		if err != nil {
-			log.Fatal(err)
 		}
 
 		b.Articles = append(b.Articles, article)
 		continue
 	}
 
-	// Remove articles for which the source is missing
-	for _, compiledDirEntry := range compiledDirEntries {
-		title, ok := strings.CutSuffix(compiledDirEntry.Name(), ".html")
-		if !ok {
-			continue
-		}
-
-		sourceDirEntry := findDirEntry(title, sourceDirEntries)
-		if sourceDirEntry != nil {
-			continue
-		}
-
-		os.Remove(path.Join(b.outputDir, compiledDirEntry.Name()))
-	}
-
-	// Sort articles in reverse chronological order
-	slices.SortFunc[[]*BlogArticle](b.Articles, func(a *BlogArticle, b *BlogArticle) int {
-		return int(b.LastModifiedTime.Sub(a.LastModifiedTime))
+	// Sort articles in descending chronological order
+	slices.SortFunc(b.Articles, func(a *BlogArticle, b *BlogArticle) int {
+		return int(b.PubTime.Sub(a.PubTime))
 	})
 
 	log.Printf("Resumption complete: %d article(s)", len(b.Articles))
@@ -151,7 +94,7 @@ func (b *ArticleBuilderWatcher) watch() {
 
 		switch event.Op {
 		case fsnotify.Write:
-			article, err := b.buildArticle(path.Base(event.Name))
+			article, err := b.buildArticle(event.Name)
 			if err != nil {
 				log.Println(err)
 			}
@@ -162,60 +105,60 @@ func (b *ArticleBuilderWatcher) watch() {
 			}
 
 		case fsnotify.Remove:
-			b.removeArticle(path.Base(event.Name))
+			b.removeArticle(event.Name)
 
 		}
 
-		slices.SortFunc[[]*BlogArticle](b.Articles, func(a *BlogArticle, b *BlogArticle) int {
-			return int(b.LastModifiedTime.Sub(a.LastModifiedTime))
+		slices.SortFunc(b.Articles, func(a *BlogArticle, b *BlogArticle) int {
+			return int(b.PubTime.Sub(a.PubTime))
 		})
 	}
 }
 
-// Load an already compiled file
-func (b *ArticleBuilderWatcher) loadArticle(compiledFile string, lastModifiedTime time.Time) (*BlogArticle, error) {
-	title := strings.ReplaceAll(strings.TrimSuffix(compiledFile, ".html"), "_", " ")
+// Build an article from a markdown source file
+func (b *ArticleBuilderWatcher) buildArticle(sourceFile string) (*BlogArticle, error) {
+	log.Printf("Building article \"%s\"", sourceFile)
 
-	log.Printf("Loading article \"%s\"", title)
-
-	html, err := os.ReadFile(path.Join(b.outputDir, compiledFile))
+	source, err := os.ReadFile(sourceFile)
 	if err != nil {
 		return nil, err
 	}
 
+	sections := bytes.Split(source, []byte("---\n"))
+	if len(sections) != 3 {
+		return nil, errors.New("source has invalid frontmatter")
+	}
+
+	frontMatter, err := parseFrontMatter(sections[1])
+	if err != nil {
+		return nil, err
+	}
+
+	html := markdown.ToHTML(sections[2], nil, nil)
+
 	article := BlogArticle{
-		Title:            strings.ReplaceAll(title, "_", " "),
-		HTML:             html,
-		LastModifiedTime: lastModifiedTime,
+		HTML:        html,
+		sourceFile:  sourceFile,
+		FrontMatter: frontMatter,
 	}
 
 	return &article, nil
 }
 
-// Build an article from a markdown source file
-func (b *ArticleBuilderWatcher) buildArticle(sourceFile string) (*BlogArticle, error) {
-	title := strings.ReplaceAll(strings.TrimSuffix(sourceFile, ".md"), "_", " ")
-
-	log.Printf("Building article \"%s\"", title)
-
-	source, err := os.ReadFile(path.Join(b.sourceDir, sourceFile))
+func parseFrontMatter(source []byte) (FrontMatter, error) {
+	var frontMatter FrontMatter
+	err := yaml.Unmarshal([]byte(source), &frontMatter)
 	if err != nil {
-		return nil, err
+		return FrontMatter{}, err
 	}
 
-	article := BlogArticle{
-		Title:            strings.ReplaceAll(title, "_", " "),
-		HTML:             markdown.ToHTML(source, nil, nil),
-		LastModifiedTime: time.Now(),
-	}
-
-	return &article, nil
+	return frontMatter, nil
 }
 
 // Look for article with the same title in the list of existing articles and replace it with the new one
 func (b *ArticleBuilderWatcher) updateArticle(newArticle *BlogArticle) bool {
 	for i, a := range b.Articles {
-		if a.Title == newArticle.Title {
+		if a.sourceFile == newArticle.sourceFile {
 			b.Articles[i] = newArticle
 			return true
 		}
@@ -225,17 +168,15 @@ func (b *ArticleBuilderWatcher) updateArticle(newArticle *BlogArticle) bool {
 }
 
 func (b *ArticleBuilderWatcher) removeArticle(sourceFile string) error {
-	title := strings.ReplaceAll(strings.TrimSuffix(sourceFile, ".md"), "_", " ")
-
-	log.Printf("Removing article \"%s\"", title)
+	log.Printf("Removing article \"%s\"", sourceFile)
 
 	for i, a := range b.Articles {
-		if a.Title == title {
+		if a.sourceFile == sourceFile {
 			b.Articles = append(b.Articles[:i], b.Articles[i+1:]...)
 			return nil
 		}
 	}
-	return fmt.Errorf("Tried to delete article %s which is not in the list ???", title)
+	return fmt.Errorf("Tried to delete article %s which is not in the list ???", sourceFile)
 }
 
 func (b *ArticleBuilderWatcher) findArticle(title string) *BlogArticle {
@@ -254,4 +195,25 @@ func findDirEntry(title string, dirEntries []os.DirEntry) os.DirEntry {
 		}
 	}
 	return nil
+}
+
+type FrontMatter struct {
+	Title   string
+	ModTime frontMatterTime `yaml:"mod_time"`
+	PubTime frontMatterTime `yaml:"pub_time"`
+}
+
+type frontMatterTime time.Time
+
+func (t *frontMatterTime) UnmarshalYAML(value *yaml.Node) error {
+	parsedTime, err := time.Parse("2006-01-02", value.Value)
+	if err != nil {
+		return err
+	}
+	*t = frontMatterTime(parsedTime)
+	return nil
+}
+
+func (t frontMatterTime) Sub(s frontMatterTime) time.Duration {
+	return time.Time(t).Sub(time.Time(s))
 }

@@ -1,3 +1,8 @@
+---
+title: powering a contact form with go and docker
+pub_time: 2023-06-29
+mod_time: 2023-06-29
+---
 ## Intro
 The first version of my portfolio was originally published with GitHub pages as it was a convenient way of creating a static website. However, I wanted to give users a way of reaching out to me, whether it was to share an idea or to offer me a 6 figure salary.
 

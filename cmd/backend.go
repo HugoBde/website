@@ -9,7 +9,6 @@ import (
 	"hugobde.dev/internal/article"
 	"hugobde.dev/internal/templates"
 
-	"github.com/fsnotify/fsnotify"
 	"github.com/joho/godotenv"
 )
 
@@ -37,7 +36,7 @@ func main() {
 
 	}
 
-	builder, err := article.NewArticleBuilderWatcher("./website/blog_source", "./website/blog")
+	builder, err := article.NewArticleBuilderWatcher("./website/blog_source")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -77,17 +76,5 @@ func articlePageHandler(b *article.ArticleBuilderWatcher) http.HandlerFunc {
 		}
 
 		templates.ArticlePage(b.Articles[articleIndex]).Render(r.Context(), w)
-	}
-}
-
-func articleBuilder(sourceDir string, articleDir string) {
-	watcher, err := fsnotify.NewWatcher()
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	err = watcher.Add(sourceDir)
-	if err != nil {
-		log.Fatal(err)
 	}
 }
