@@ -1,4 +1,5 @@
 ---
+id: 1
 title: powering a contact form with go and docker
 pub_time: 2023-06-29
 mod_time: 2023-06-29

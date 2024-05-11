@@ -31,8 +31,8 @@ func BlogTemplate(articles []*article.BlogArticle) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		for i, article := range articles {
-			templ_7745c5c3_Err = ArticleComponent(i, article).Render(ctx, templ_7745c5c3_Buffer)
+		for _, article := range articles {
+			templ_7745c5c3_Err = ArticleComponent(article).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

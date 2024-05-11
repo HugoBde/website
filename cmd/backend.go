@@ -4,12 +4,13 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"strconv"
+	"slices"
 
 	"hugobde.dev/internal/article"
 	"hugobde.dev/internal/templates"
 
 	"github.com/joho/godotenv"
+	"golang.org/x/exp/maps"
 )
 
 func main() {
@@ -45,7 +46,7 @@ func main() {
 
 	http.HandleFunc("/", homePage)
 	http.HandleFunc("/blog", blogPageHandler(builder))
-	http.HandleFunc("/blog/{index}", articlePageHandler(builder))
+	http.HandleFunc("/blog/{id}", articlePageHandler(builder))
 	http.Handle("/static/", http.StripPrefix("/static", http.FileServer(http.Dir("./website/static"))))
 
 	log.Println("Listening on :" + port)
@@ -58,23 +59,25 @@ func homePage(w http.ResponseWriter, r *http.Request) {
 
 func blogPageHandler(b *article.ArticleBuilderWatcher) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		templates.BlogTemplate(b.Articles).Render(r.Context(), w)
+		articleList := maps.Values(b.Articles)
+		slices.SortFunc(articleList, func(a *article.BlogArticle, b *article.BlogArticle) int {
+			return int(b.PubTime.Sub(a.PubTime))
+		})
+		templates.BlogTemplate(articleList).Render(r.Context(), w)
 	}
 }
 
 func articlePageHandler(b *article.ArticleBuilderWatcher) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		articleIndex, err := strconv.Atoi(r.PathValue("index"))
-		if err != nil {
-			w.WriteHeader(http.StatusNotFound)
-		}
+		id := r.PathValue("id")
 
-		if articleIndex >= len(b.Articles) {
+		article, ok := b.Articles[id]
+		if !ok {
 			w.WriteHeader(http.StatusNotFound)
 			w.Write([]byte("how did you get here buddy?"))
 			return
 		}
 
-		templates.ArticlePage(b.Articles[articleIndex]).Render(r.Context(), w)
+		templates.ArticlePage(article).Render(r.Context(), w)
 	}
 }

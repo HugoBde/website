@@ -7,7 +7,6 @@ import (
 	"log"
 	"os"
 	"path"
-	"slices"
 	"strings"
 	"time"
 
@@ -23,7 +22,7 @@ type BlogArticle struct {
 }
 
 type ArticleBuilderWatcher struct {
-	Articles  []*BlogArticle
+	Articles  map[string]*BlogArticle
 	watcher   *fsnotify.Watcher
 	sourceDir string
 }
@@ -40,7 +39,7 @@ func NewArticleBuilderWatcher(sourceDir string) (*ArticleBuilderWatcher, error) 
 	}
 
 	return &ArticleBuilderWatcher{
-		Articles:  make([]*BlogArticle, 0),
+		Articles:  make(map[string]*BlogArticle, 0),
 		watcher:   watcher,
 		sourceDir: sourceDir,
 	}, nil
@@ -71,14 +70,9 @@ func (b *ArticleBuilderWatcher) resume() {
 			continue
 		}
 
-		b.Articles = append(b.Articles, article)
+		b.Articles[article.ID] = article
 		continue
 	}
-
-	// Sort articles in descending chronological order
-	slices.SortFunc(b.Articles, func(a *BlogArticle, b *BlogArticle) int {
-		return int(b.PubTime.Sub(a.PubTime))
-	})
 
 	log.Printf("Resumption complete: %d article(s)", len(b.Articles))
 }
@@ -97,11 +91,8 @@ func (b *ArticleBuilderWatcher) watch() {
 			article, err := b.buildArticle(event.Name)
 			if err != nil {
 				log.Println(err)
-			}
-			if oldArticle := b.findArticle(article.Title); oldArticle != nil {
-				b.updateArticle(article)
 			} else {
-				b.Articles = append(b.Articles, article)
+				b.Articles[article.ID] = article
 			}
 
 		case fsnotify.Remove:
@@ -109,9 +100,6 @@ func (b *ArticleBuilderWatcher) watch() {
 
 		}
 
-		slices.SortFunc(b.Articles, func(a *BlogArticle, b *BlogArticle) int {
-			return int(b.PubTime.Sub(a.PubTime))
-		})
 	}
 }
 
@@ -151,41 +139,26 @@ func parseFrontMatter(source []byte) (FrontMatter, error) {
 	if err != nil {
 		return FrontMatter{}, err
 	}
-
-	return frontMatter, nil
-}
-
-// Look for article with the same title in the list of existing articles and replace it with the new one
-func (b *ArticleBuilderWatcher) updateArticle(newArticle *BlogArticle) bool {
-	for i, a := range b.Articles {
-		if a.sourceFile == newArticle.sourceFile {
-			b.Articles[i] = newArticle
-			return true
-		}
+	if frontMatter.Title == "" {
+		return FrontMatter{}, errors.New("Missing Title in front matter")
+	}
+	if frontMatter.ID == "" {
+		return FrontMatter{}, errors.New("Missing ID in front matter")
 	}
 
-	return false
+	return frontMatter, nil
 }
 
 func (b *ArticleBuilderWatcher) removeArticle(sourceFile string) error {
 	log.Printf("Removing article \"%s\"", sourceFile)
 
-	for i, a := range b.Articles {
+	for k, a := range b.Articles {
 		if a.sourceFile == sourceFile {
-			b.Articles = append(b.Articles[:i], b.Articles[i+1:]...)
+			delete(b.Articles, k)
 			return nil
 		}
 	}
 	return fmt.Errorf("Tried to delete article %s which is not in the list ???", sourceFile)
-}
-
-func (b *ArticleBuilderWatcher) findArticle(title string) *BlogArticle {
-	for _, a := range b.Articles {
-		if a.Title == title {
-			return a
-		}
-	}
-	return nil
 }
 
 func findDirEntry(title string, dirEntries []os.DirEntry) os.DirEntry {
@@ -198,7 +171,8 @@ func findDirEntry(title string, dirEntries []os.DirEntry) os.DirEntry {
 }
 
 type FrontMatter struct {
-	Title   string
+	ID      string          `yaml:"id"`
+	Title   string          `yaml:"title"`
 	ModTime frontMatterTime `yaml:"mod_time"`
 	PubTime frontMatterTime `yaml:"pub_time"`
 }

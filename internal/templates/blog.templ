@@ -26,8 +26,8 @@ templ BlogTemplate(articles []*article.BlogArticle) {
 			</nav>
 			<main>
 				<div id="articles-list">
-					for i, article := range articles {
-						@ArticleComponent(i, article)
+					for _, article := range articles {
+						@ArticleComponent(article)
 					}
 				</div>
 			</main>
