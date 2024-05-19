@@ -3,39 +3,16 @@ package main
 import (
 	"log"
 	"net/http"
-	"os"
 	"slices"
 
 	"hugobde.dev/internal/article"
 	"hugobde.dev/internal/templates"
 
-	"github.com/joho/godotenv"
 	"golang.org/x/exp/maps"
 )
 
 func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
-
-	err := godotenv.Load()
-	if err != nil {
-		log.Println("Failed to load .env file, hope you have environments variables already set :)")
-	}
-
-	port := os.Getenv("PORT")
-	if port == "" {
-		log.Fatal("PORT not set")
-	}
-
-	serverCert := os.Getenv("SERVER_CERT")
-	if serverCert == "" {
-		log.Fatal("SERVER_CERT not set")
-	}
-
-	serverKey := os.Getenv("SERVER_KEY")
-	if serverKey == "" {
-		log.Fatal("SERVER_KEY not set")
-
-	}
 
 	builder, err := article.NewArticleBuilderWatcher("./website/blog_source")
 	if err != nil {
@@ -49,8 +26,8 @@ func main() {
 	http.HandleFunc("/blog/{id}", articlePageHandler(builder))
 	http.Handle("/static/", http.StripPrefix("/static", http.FileServer(http.Dir("./website/static"))))
 
-	log.Println("Listening on :" + port)
-	log.Fatal(http.ListenAndServeTLS(":"+port, serverCert, serverKey, nil))
+	log.Println("Listening on :8080")
+	log.Fatal(http.ListenAndServe(":8080", nil))
 }
 
 func homePage(w http.ResponseWriter, r *http.Request) {
