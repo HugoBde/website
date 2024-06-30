@@ -90,6 +90,9 @@ h4 {
     margin: 0;
 }
 
+li {
+    margin-bottom: 0.5em;
+}
 
 p {
     text-align: justify;
