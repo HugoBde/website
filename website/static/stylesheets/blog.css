@@ -1,5 +1,5 @@
 html {
-    --code-bg: #1D1C19;
+    --code-bg: #282727;
 }
 
 p {
@@ -12,31 +12,31 @@ p {
 }
 
 h2 {
-    margin-top: 2em;
+    margin-top: 0.5em;
     margin-bottom: 0.5em;
 }
 
 h3 {
-    margin-top: 1.5em;
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
 }
 
 #articles-list {
     display: flex;
     flex-wrap: wrap;
     gap: 1em;
-    width: 60%;
+    width: 85%;
 }
 
-#articles-list .card {
-    width: 150px;
-    height: 150px;
-}
-
-@media (min-height: 1024px) {
-    #articles-list .card {
-        width: 200;
-        height: 200px;
+@media only screen and (min-width : 1200px) {
+    main>div {
+        width: 1020px;
     }
+}
+
+#articles-list * {
+    box-sizing: border-box;
+    width: 100%;
 }
 
 
