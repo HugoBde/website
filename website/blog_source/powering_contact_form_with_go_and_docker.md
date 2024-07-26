@@ -251,7 +251,7 @@ CMD ["/msgme"]
 ```
 Let me take you through this build process. We start with the same image as before, but this time we'll give this image an alias `BUILDER` which we'll use to refer to it later. The next notable difference is this `CGO_ENABLED=0` statement when compiling our code. By default, the Go compiler links our code against the standard C library, usually `glibc`. However, since we decided to use the `scratch` image, `glibc` will not be available when we try to run our program, thus we tell the compiler to **statically link** our code by setting the `CGO_ENABLED` environment variable to 0.
 
-After compiling the code, we create a new image, this time starting from `scratch`, and we tell go to look in our `BUILDER` image to copy our freshly built executable using the `--from` flag.
+After compiling the code, we create a new image, this time starting from `scratch`, and we tell Docker to look in our `BUILDER` image to copy our freshly built executable using the `--from` flag.
 
 Build your image and check its size again to see how much space we managed to save:
 ```sh
