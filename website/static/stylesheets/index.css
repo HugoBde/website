@@ -2,7 +2,6 @@ html {
     margin: 0;
     --bg: #181816;
     --fg: #C5C9C5;
-    --accent: #98BB6C;
     background-color: var(--bg);
     color: var(--fg);
     height: 100vh;

@@ -1,5 +1,6 @@
 html {
     --code-bg: #282727;
+    --accent: #E6C384;
 }
 
 p {
@@ -72,4 +73,6 @@ code {
     overflow: scroll;
     text-overflow: ellipsis;
     font-weight: 500;
+    font-size: 16px;
+    color: var(--accent);
 }
