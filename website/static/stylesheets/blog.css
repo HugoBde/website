@@ -29,7 +29,7 @@ h3 {
 }
 
 @media only screen and (min-width : 1200px) {
-    main>div {
+    #articles-list {
         width: 1020px;
     }
 }
