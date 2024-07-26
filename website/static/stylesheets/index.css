@@ -71,9 +71,9 @@ main>div {
     width: 90%;
 }
 
-@media (min-width: 1500px) {
+@media (min-width: 1000px) {
     main>div {
-        width: 1350px;
+        width: 900px;
     }
 }
 
