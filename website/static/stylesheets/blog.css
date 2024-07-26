@@ -2,9 +2,22 @@ html {
     --code-bg: #1D1C19;
 }
 
+p {
+    text-align: justify;
+}
+
+.article-header h2 {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+h2 {
+    margin-top: 2em;
+    margin-bottom: 0.5em;
+}
+
 h3 {
-    /* margin-top: 1em !important; */
-    /* margin-bottom: 1em !important; */
+    margin-top: 1.5em;
 }
 
 #articles-list {
@@ -18,6 +31,14 @@ h3 {
     width: 150px;
     height: 150px;
 }
+
+@media (min-height: 1024px) {
+    #articles-list .card {
+        width: 200;
+        height: 200px;
+    }
+}
+
 
 .date {
     font-size: 0.75em;

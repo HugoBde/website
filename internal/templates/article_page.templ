@@ -35,7 +35,7 @@ templ ArticlePage(article *article.BlogArticle) {
 			<main>
 				<div class="card">
 					<div class="article-header">
-						<h3>{ article.Title }</h3>
+						<h2>{ article.Title }</h2>
 						<p class="date">{ time.Time(article.PubTime).Format("2006-01-02") }</p>
 					</div>
 					@templ.Raw(string(article.HTML))
