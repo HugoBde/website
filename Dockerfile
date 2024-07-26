@@ -1,5 +1,5 @@
 # build image
-FROM golang:1.22 as build-stage
+FROM golang:1.22 AS build-stage
 
 WORKDIR /app
 
@@ -11,7 +11,7 @@ COPY internal internal
 RUN CGO_ENABLED=0 go build ./cmd/backend.go
 
 # deploy image
-FROM alpine:3.14 as deploy-stage
+FROM alpine:3.14 AS deploy-stage
 WORKDIR /app
 
 COPY --from=build-stage /app/backend backend
