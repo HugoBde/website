@@ -2,3 +2,8 @@ backend
 website/blog/*
 certs/*
 tmp
+
+
+# Added by cargo
+
+/target

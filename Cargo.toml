@@ -1,0 +1,11 @@
+[package]
+name = "website"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+axum = "0.8.4"
+axum-extra = { version = "0.10.1", features = ["cookie"] }
+lazy_static = "1.5.0"
+tokio = { version = "1.45.1", features = ["rt-multi-thread"] }
+tower-http = { version = "0.6.5", features = ["fs"] }
