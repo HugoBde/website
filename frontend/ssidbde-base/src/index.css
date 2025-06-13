@@ -1,0 +1,19 @@
+@import "tailwindcss";
+
+* {
+    font-family: "Audiowide", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+}
+
+.background {
+    background-color: var(--color)
+        /* opacity: 0.3; */
+        /* background-image: linear-gradient(30deg, var(--color-sky-200), 12%, transparent 12.5%, transparent 87%, #b8e6fe 87.5%, #b8e6fe), linear-gradient(150deg, #b8e6fe 12%, transparent 12.5%, transparent 87%, #b8e6fe 87.5%, #b8e6fe), linear-gradient(30deg, #b8e6fe 12%, transparent 12.5%, transparent 87%, #b8e6fe 87.5%, #b8e6fe), linear-gradient(150deg, #b8e6fe 12%, transparent 12.5%, transparent 87%, #b8e6fe 87.5%, #b8e6fe), linear-gradient(60deg, #b8e6fe77 25%, transparent 25.5%, transparent 75%, #b8e6fe77 75%, #b8e6fe77), linear-gradient(60deg, #b8e6fe77 25%, transparent 25.5%, transparent 75%, #b8e6fe77 75%, #b8e6fe77); */
+        /* background-size: 80px 140px; */
+        /* background-position: 0 0, 0 0, 40px 70px, 40px 70px, 0 0, 40px 70px; */
+}
+
+:root {
+    --navbar-gradient: 350deg, black, transparent 75%, transparent
+}
