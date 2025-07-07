@@ -22,7 +22,6 @@ func main() {
 	go builder.Run()
 
 	http.HandleFunc("/", homePage)
-	http.HandleFunc("/resume", resumePage)
 	http.HandleFunc("/blog", blogPageHandler(builder))
 	http.HandleFunc("/blog/{id}", articlePageHandler(builder))
 	http.Handle("/static/", http.StripPrefix("/static", http.FileServer(http.Dir("./website/static"))))
@@ -33,10 +32,6 @@ func main() {
 
 func homePage(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, "./website/index.html")
-}
-
-func resumePage(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, "./website/resume.html")
 }
 
 func blogPageHandler(b *article.ArticleBuilderWatcher) http.HandlerFunc {
